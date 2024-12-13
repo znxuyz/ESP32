@@ -1,10 +1,13 @@
 {
-    "name": "ESP32 Extension",
-    "description": "An extension for ESP32 to control WiFi, GPIO, and HTTP requests.",
-    "dependencies": {
-        "core": "*"
-    },
-    "files": [
-        "custom.ts"
-    ]
+  "name": "ESP32 WiFi Blocks",
+  "version": "1.0.0",
+  "description": "A MakeCode extension for ESP32 WiFi initialization and control.",
+  "dependencies": {},
+  "files": [
+    "main.ts",
+    "README.md"
+  ],
+  "supportedTargets": [
+    "microbit"
+  ]
 }
