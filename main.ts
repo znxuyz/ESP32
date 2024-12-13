@@ -1,5 +1,3 @@
-// micro:bit MakeCode Extension for ESP32 WiFi and Initialization
-
 namespace ESP32 {
 
     let wifiConnected = false;
