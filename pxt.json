@@ -1,13 +1,13 @@
 {
-  "name": "ESP32 WiFi Blocks",
-  "version": "1.0.0",
-  "description": "A MakeCode extension for ESP32 WiFi initialization and control.",
-  "dependencies": {},
-  "files": [
-    "main.ts",
-    "README.md"
-  ],
-  "supportedTargets": [
-    "microbit"
-  ]
+    "name": "ESP32 WiFi Blocks",
+    "version": "1.0.0",
+    "description": "A MakeCode extension for ESP32 WiFi initialization and control.",
+    "dependencies": {},
+    "files": [
+        "main.ts",
+        "README.md"
+    ],
+    "supportedTargets": [
+        "microbit"
+    ]
 }
