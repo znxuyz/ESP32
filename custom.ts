@@ -1,65 +1,58 @@
-//% color="#00BFFF" weight=100 icon="\uf1eb"
+// micro:bit MakeCode Extension for ESP32 WiFi and Initialization
+
 namespace ESP32 {
+
+    let wifiConnected = false;
+
     /**
-     * Initialize serial communication
+     * Initialize the ESP32 module with a specific baud rate
+     * @param baudrate Baud rate for the ESP32 module (default 115200)
      */
-    //% block="初始化 UART 通信 TX %tx RX %rx"
-    //% tx.defl=SerialPin.P0 rx.defl=SerialPin.P1
-    export function initUART(tx: SerialPin, rx: SerialPin): void {
-        serial.redirect(tx, rx, BaudRate.BaudRate115200);
+    //% block="初始化 ESP32，波特率 %baudrate"
+    export function initializeESP32(baudrate: number = 115200): void {
+        serial.redirect(SerialPin.P0, SerialPin.P1, BaudRate.BaudRate115200);
+        serial.setRxBufferSize(128);
         basic.pause(100);
-        serial.writeLine("ESP32 Ready");
+        serial.writeString("AT\r\n");
     }
 
     /**
-     * Connect to WiFi
+     * Connect to a WiFi network
+     * @param ssid WiFi network name
+     * @param password WiFi network password
      */
-    //% block="連接 WiFi 名稱 %ssid 密碼 %password"
+    //% block="連接到 WiFi 名稱 %ssid，密碼 %password"
     export function connectWiFi(ssid: string, password: string): void {
-        serial.writeLine(`WIFI-CONNECT:${ssid},${password}`);
+        serial.writeString("AT+CWJAP=\"" + ssid + "\",\"" + password + "\"\r\n");
+        basic.pause(5000);
+        let response = serial.readString();
+        if (response.includes("OK")) {
+            wifiConnected = true;
+            basic.showIcon(IconNames.Yes);
+        } else {
+            wifiConnected = false;
+            basic.showIcon(IconNames.No);
+        }
     }
 
     /**
-     * Check WiFi connection status
+     * Check if WiFi is connected
+     * @return true if connected, false otherwise
      */
     //% block="檢查 WiFi 是否已連接"
     export function checkWiFi(): boolean {
-        serial.writeLine("WIFI-STATUS");
-        let response = serial.readUntil(serial.delimiters(Delimiters.NewLine));
-        return response.includes("CONNECTED");
+        return wifiConnected;
     }
 
     /**
-     * Send HTTP GET request
+     * Send an AT command to the ESP32 module and get the response
+     * @param command AT command to send
+     * @return Response from the ESP32 module
      */
-    //% block="傳送 HTTP GET 到網址 %url"
-    export function httpGet(url: string): void {
-        serial.writeLine(`HTTP-GET:${url}`);
-    }
-
-    /**
-     * Send HTTP POST request with data
-     */
-    //% block="傳送 HTTP POST 到網址 %url 並傳送資料 %data"
-    export function httpPost(url: string, data: string): void {
-        serial.writeLine(`HTTP-POST:${url},${data}`);
-    }
-
-    /**
-     * Set GPIO pin state
-     */
-    //% block="設置 GPIO 腳位 %pin 狀態為 %state"
-    //% pin.min=0 pin.max=39
-    export function setGPIO(pin: number, state: boolean): void {
-        serial.writeLine(`GPIO:${pin},${state ? "HIGH" : "LOW"}`);
-    }
-
-    /**
-     * Receive data
-     */
-    //% block="接收資料"
-    export function receiveData(): string {
-        let response = serial.readString();
-        return response;
+    //% block="發送 AT 指令 %command"
+    export function sendATCommand(command: string): string {
+        serial.writeString(command + "\r\n");
+        basic.pause(1000);
+        return serial.readString();
     }
 }
