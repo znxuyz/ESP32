@@ -1,0 +1,10 @@
+{
+    "name": "ESP32 Extension",
+    "description": "An extension for ESP32 to control WiFi, GPIO, and HTTP requests.",
+    "dependencies": {
+        "core": "*"
+    },
+    "files": [
+        "custom.ts"
+    ]
+}
