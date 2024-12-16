@@ -1,14 +1,13 @@
 {
   "name": "ESP32WiFi",
   "version": "0.0.1",
-  "description": "ESP32 WiFi 功能擴充，用於 Google Sheets 和 MIT App",
+  "description": "ESP32 WiFi 擴充功能",
   "license": "MIT",
   "dependencies": {
     "core": "*"
   },
   "files": [
-    "main.ts",
-    "shims.d.ts"
+    "main.ts"
   ],
   "supportedTargets": [
     "microbit"
