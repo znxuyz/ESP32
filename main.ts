@@ -1,123 +1,62 @@
-#include <WiFi.h>
-#include <HTTPClient.h>
-#include <WebServer.h>
-
-// WiFi 設定
-const char* ssid = "你的WiFi名稱";
-const char* password = "你的WiFi密碼";
-
-// 定義引腳
-const int ledPin = 2; // 使用內建LED燈引腳
-
-// WebServer 初始化
-WebServer server(80);
-
-// 初始化函數
-void setupPins() {
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
-  Serial.println("引腳設定完成");
-}
-
-// WiFi 連線函數
-void connectWiFi() {
-  WiFi.begin(ssid, password);
-  Serial.print("正在連接 WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("\nWiFi 已連接");
-  Serial.print("IP 位址: ");
-  Serial.println(WiFi.localIP());
-}
-
-// 確認 WiFi 狀態
-void checkWiFiStatus() {
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("WiFi 連線正常");
-  } else {
-    Serial.println("WiFi 連線失敗，重新連線中...");
-    connectWiFi();
-  }
-}
-
-// Google Sheets 資料傳輸
-void sendDataToGoogleSheet(String data) {
-  if (WiFi.status() == WL_CONNECTED) {
-    HTTPClient http;
-    String url = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
-    http.begin(url);
-    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-
-    String payload = "data=" + data;
-    int httpResponseCode = http.POST(payload);
-
-    if (httpResponseCode > 0) {
-      Serial.println("成功傳送資料到Google試算表");
-      Serial.println(http.getString());
-    } else {
-      Serial.println("傳送資料失敗");
+namespace ESP32WiFi {
+    /**
+     * 初始化 ESP32
+     */
+    //% block="初始化 ESP32"
+    export function init(): void {
+        serial.redirect(SerialPin.P0, SerialPin.P1, BaudRate.BaudRate115200);
+        basic.pause(1000);
+        serial.writeLine("ESP32 初始化完成");
     }
-    http.end();
-  } else {
-    Serial.println("WiFi 尚未連接");
-  }
-}
 
-// MIT App 資料傳輸
-void sendDataToMITApp(String data) {
-  if (WiFi.status() == WL_CONNECTED) {
-    HTTPClient http;
-    String url = "http://YOUR_APP_INVENTOR_WEB_COMPONENT_URL";
-    http.begin(url);
-    http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-
-    String payload = "value=" + data;
-    int httpResponseCode = http.POST(payload);
-
-    if (httpResponseCode > 0) {
-      Serial.println("成功傳送資料到MIT App");
-    } else {
-      Serial.println("傳送資料失敗");
+    /**
+     * 連接 WiFi
+     */
+    //% block="連接 WiFi SSID %ssid 密碼 %password"
+    export function connectWiFi(ssid: string, password: string): void {
+        serial.writeLine(`WIFI|CONNECT|SSID=${ssid}|PASSWORD=${password}`);
+        basic.pause(3000);
+        serial.writeLine("WiFi 已連接");
     }
-    http.end();
-  } else {
-    Serial.println("WiFi 尚未連接");
-  }
-}
 
-// 簡單網頁伺服器
-void handleRoot() {
-  server.send(200, "text/plain", "Hello, this is ESP32!");
-}
+    /**
+     * 確認 WiFi 狀態
+     */
+    //% block="確認 WiFi 狀態"
+    export function checkWiFi(): boolean {
+        serial.writeLine("WIFI|STATUS");
+        basic.pause(100);
+        let response = serial.readLine();
+        return response.includes("CONNECTED");
+    }
 
-void setupServer() {
-  server.on("/", handleRoot);
-  server.begin();
-  Serial.println("網頁伺服器已啟動");
-}
+    /**
+     * 傳送資料到 Google Sheets
+     */
+    //% block="傳送資料到 Google Sheets 資料 %data"
+    export function sendToGoogleSheets(data: string): void {
+        serial.writeLine(`GOOGLE|DATA=${data}`);
+        basic.pause(100);
+        serial.writeLine("資料已傳送到 Google Sheets");
+    }
 
-// 初始化
-void setup() {
-  Serial.begin(115200); // 初始化序列埠
-  setupPins();          // 初始化引腳
-  connectWiFi();        // 啟動 WiFi
-  setupServer();        // 啟動 WebServer
-}
+    /**
+     * 傳送資料到 MIT App
+     */
+    //% block="傳送資料到 MIT App 資料 %data"
+    export function sendToMITApp(data: string): void {
+        serial.writeLine(`MIT|DATA=${data}`);
+        basic.pause(100);
+        serial.writeLine("資料已傳送到 MIT App");
+    }
 
-// 主程式邏輯
-void loop() {
-  server.handleClient(); // 處理 WebServer 請求
-
-  // 模擬資料傳輸，每隔10秒傳送一次
-  static unsigned long lastMillis = 0;
-  if (millis() - lastMillis > 10000) {
-    lastMillis = millis();
-    String sampleData = "25.5"; // 假設溫度資料
-    sendDataToGoogleSheet(sampleData);
-    sendDataToMITApp(sampleData);
-  }
-
-  checkWiFiStatus(); // 檢查 WiFi 狀態
+    /**
+     * 啟動 Web 伺服器
+     */
+    //% block="啟動 Web 伺服器"
+    export function startWebServer(): void {
+        serial.writeLine("SERVER|START");
+        basic.pause(100);
+        serial.writeLine("Web 伺服器已啟動");
+    }
 }
