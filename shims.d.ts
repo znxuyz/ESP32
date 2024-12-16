@@ -11,10 +11,4 @@ declare namespace ESP32WiFi {
 
     //% block="傳送資料到 Google Sheets 資料 %data"
     function sendToGoogleSheets(data: string): void;
-
-    //% block="傳送資料到 MIT App 資料 %data"
-    function sendToMITApp(data: string): void;
-
-    //% block="啟動 Web 伺服器"
-    function startWebServer(): void;
 }
