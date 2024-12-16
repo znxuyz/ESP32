@@ -13,10 +13,10 @@ namespace ESP32 {
     }
 
     /**
-     * 啟動 ESP32 模組
+     * 重新啟動 ESP32 模組
      */
-    //% block="啟動 ESP32 模組"
-    export function startupESP32(): void {
+    //% block="重新啟動 ESP32 模組"
+    export function restartESP32(): void {
         serial.writeString("AT+RST\r\n");
         basic.pause(2000);
     }
@@ -41,101 +41,32 @@ namespace ESP32 {
         serial.writeString("AT+CWJAP?\r\n");
         basic.pause(1000);
         let response = serial.readString();
-        wifiConnected = response.includes("+CWJAP:");
-        return wifiConnected;
+        return response.includes("+CWJAP:");
     }
 
     /**
-     * 斷開 WiFi 連接
+     * 發送 HTTP 請求
      */
-    //% block="斷開 WiFi 連接"
-    export function disconnectWiFi(): void {
-        serial.writeString("AT+CWQAP\r\n");
-        basic.pause(1000);
-        wifiConnected = false;
-    }
+    //% block="發送 HTTP %method 請求到 %url，數據 %data"
+    export function sendHttpRequest(method: "GET" | "POST", url: string, data?: string): string {
+        let command = method === "GET"
+            ? `AT+HTTPCLIENT=2,0,"${url}",,,1\r\n`
+            : `AT+HTTPCLIENT=2,1,"${url}",,,2,"${data}"\r\n`;
 
-    /**
-     * 掃描可用的 WiFi 網絡
-     */
-    //% block="掃描可用的 WiFi 網絡"
-    export function scanWiFiNetworks(): void {
-        serial.writeString("AT+CWLAP\r\n");
-        basic.pause(3000);
-        let response = serial.readString();
-        serial.writeLine(response);
-    }
-
-    /**
-     * 獲取 ESP32 的 IP 地址
-     */
-    //% block="獲取 ESP32 的 IP 地址"
-    export function getIPAddress(): string {
-        serial.writeString("AT+CIFSR\r\n");
-        basic.pause(1000);
-        return serial.readString();
-    }
-
-    /**
-     * 發送 HTTP GET 到網址 %url
-     */
-    //% block="發送 HTTP GET 到網址 %url"
-    export function sendHttpGet(url: string): string {
-        serial.writeString(`AT+HTTPCLIENT=2,0,"${url}",,,1\r\n`);
+        serial.writeString(command);
         basic.pause(3000);
         return serial.readString();
     }
 
     /**
-     * 發送 HTTP POST 到網址 %url，數據 %data
+     * 發送數據到指定 Webhook 網址
      */
-    //% block="發送 HTTP POST 到網址 %url，數據 %data"
-    export function sendHttpPost(url: string, data: string): string {
-        serial.writeString(`AT+HTTPCLIENT=2,1,"${url}",,,2,"${data}"\r\n`);
-        basic.pause(3000);
-        return serial.readString();
-    }
-
-    /**
-     * 發送數據到 MIT Inventor 網址 %url，數據 %sensorData
-     */
-    //% block="發送數據到 MIT Inventor 網址 %url，數據 %sensorData"
-    export function sendDataToMIT(url: string, sensorData: string): void {
-        let data = "value=" + sensorData;
-        serial.writeString(`AT+HTTPCLIENT=2,1,"${url}",,,2,"${data}"\r\n`);
-        basic.pause(3000);
-        let response = serial.readString();
-        serial.writeLine(response);
-    }
-
-    /**
-     * 發送數據到 Google 試算表 Webhook %webhookUrl，數據 %sensorData
-     */
-    //% block="發送數據到 Google 試算表 Webhook %webhookUrl，數據 %sensorData"
-    export function sendDataToGoogleSheets(webhookUrl: string, sensorData: string): void {
+    //% block="發送數據到 %webhookUrl，數據 %sensorData"
+    export function sendDataToWebhook(webhookUrl: string, sensorData: string): void {
         let data = "sensorData=" + encodeURIComponent(sensorData);
         serial.writeString(`AT+HTTPCLIENT=2,1,"${webhookUrl}",,,2,"${data}"\r\n`);
         basic.pause(3000);
         let response = serial.readString();
         serial.writeLine(response);
-    }
-
-    /**
-     * 發送 AT 指令 %command
-     */
-    //% block="發送 AT 指令 %command"
-    export function sendATCommand(command: string): string {
-        serial.writeString(command + "\r\n");
-        basic.pause(1000);
-        return serial.readString();
-    }
-
-    /**
-     * 重啟 ESP32 模組
-     */
-    //% block="重啟 ESP32 模組"
-    export function restartESP32(): void {
-        serial.writeString("AT+RST\r\n");
-        basic.pause(2000);
     }
 }
