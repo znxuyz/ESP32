@@ -31,37 +31,39 @@ namespace ESP32 {
      * Connect to a WiFi network
      * @param ssid WiFi network name
      * @param password WiFi network password
+     * @return true if connected, false otherwise
      */
     //% block="連接到 WiFi 名稱 %ssid，密碼 %password"
-    export function connectWiFi(ssid: string, password: string): void {
+    export function connectWiFi(ssid: string, password: string): boolean {
         serial.writeString("AT+CWJAP=\"" + ssid + "\",\"" + password + "\"\r\n");
         basic.pause(5000);
         let response = serial.readString();
         if (response.includes("OK")) {
             wifiConnected = true;
             basic.showIcon(IconNames.Yes);
+            return true;
         } else {
             wifiConnected = false;
             basic.showIcon(IconNames.No);
+            return false;
         }
     }
 
     /**
      * Check if WiFi is connected
-     * @param onConnected Action if connected
-     * @param onDisconnected Action if disconnected
+     * @return true if connected, false otherwise
      */
-    //% block="檢查 WiFi 是否已連接，若連接則執行 %onConnected，若未連接則執行 %onDisconnected"
-    export function checkWiFiAndAct(onConnected: () => void, onDisconnected: () => void): void {
+    //% block="檢查 WiFi 是否已連接"
+    export function checkWiFi(): boolean {
         serial.writeString("AT+CWJAP?\r\n");
         basic.pause(1000);
         let response = serial.readString();
         if (response.includes("+CWJAP:")) {
             wifiConnected = true;
-            onConnected();
+            return true;
         } else {
             wifiConnected = false;
-            onDisconnected();
+            return false;
         }
     }
 
@@ -191,5 +193,70 @@ namespace ESP32 {
         basic.pause(3000);
         let response = serial.readString();
         serial.writeLine(response);
+    }
+}
+
+namespace Servo {
+
+    /**
+     * Set the angle of a servo motor
+     * @param pin Pin to which the servo motor is connected
+     * @param angle Angle to set the servo motor (0-180 degrees)
+     */
+    //% block="伺服馬達 (腳位 %pin) 角度設為 %angle 度"
+    //% angle.min=0 angle.max=180
+    export function setAngle(pin: AnalogPin, angle: number): void {
+        pins.servoWritePin(pin, angle);
+    }
+
+    /**
+     * Configure the maximum and minimum angles of a servo motor
+     * @param pin Pin to which the servo motor is connected
+     * @param maxAngle Maximum angle (default 180 degrees)
+     * @param minAngle Minimum angle (default 0 degrees)
+     */
+    //% block="伺服馬達 (腳位 %pin) 設定角度最大 %maxAngle 度 最小 %minAngle 度"
+    //% maxAngle.min=0 maxAngle.max=180
+    //% minAngle.min=0 minAngle.max=180
+    export function configureAngleLimits(pin: AnalogPin, maxAngle: number, minAngle: number): void {
+        // This is a placeholder implementation. Additional logic may be added to enforce angle limits.
+        pins.servoSetPulse(pin, minAngle);
+        pins.servoSetPulse(pin, maxAngle);
+    }
+
+    /**
+     * Change servo motor angle based on analog signal
+     * @param pin Pin to which the servo motor is connected
+     * @param analogSignal Analog signal value (0-1023)
+     * @param maxSignal Maximum analog signal value
+     * @param minSignal Minimum analog signal value
+     * @param maxAngle Maximum angle (default 180 degrees)
+     * @param minAngle Minimum angle (default 0 degrees)
+     */
+    //% block="伺服馬達 (腳位 %pin) 根據類比訊號數值 (最大 %maxSignal 到最小 %minSignal) 改變角度，角度最大 %maxAngle 度 最小 %minAngle 度"
+    //% maxSignal.defl=1023 minSignal.defl=0
+    //% maxAngle.defl=180 minAngle.defl=0
+    export function changeAngleByAnalogSignal(pin: AnalogPin, analogSignal: number, maxSignal: number, minSignal: number, maxAngle: number, minAngle: number): void {
+        let angle = Math.map(analogSignal, minSignal, maxSignal, minAngle, maxAngle);
+        pins.servoWritePin(pin, angle);
+    }
+
+    /**
+     * Rotate a servo motor to a specific angle within a certain time
+     * @param pin Pin to which the servo motor is connected
+     * @param duration Time in seconds to reach the angle
+     * @param angle Target angle (0-180 degrees)
+     */
+    //% block="伺服馬達 (腳位 %pin) 在 %duration 秒內旋轉至 %angle 度"
+    //% duration.defl=1
+    //% angle.min=0 angle.max=180
+    export function rotateToAngleInTime(pin: AnalogPin, duration: number, angle: number): void {
+        let currentAngle = pins.analogReadPin(pin);
+        let step = (angle - currentAngle) / (duration * 50);
+        for (let i = 0; i < duration * 50; i++) {
+            currentAngle += step;
+            pins.servoWritePin(pin, currentAngle);
+            basic.pause(20);
+        }
     }
 }
