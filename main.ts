@@ -6,10 +6,12 @@ namespace ESP32 {
 
     /**
      * Initialize the ESP32 module with a specific baud rate
-     * @param baudrate Baud rate for the ESP32 module (default 115200)
+     * @param baudrate Baud rate for the ESP32 module
      */
     //% block="初始化 ESP32，波特率 %baudrate"
-    export function initializeESP32(baudrate: number = 115200): void {
+    //% baudrate.defl=115200
+    //% baudrate.shadow="dropdown" inlineInputMode="inline"
+    export function initializeESP32(baudrate: number): void {
         serial.redirect(SerialPin.P0, SerialPin.P1, baudrate);
         serial.setRxBufferSize(128);
         basic.pause(100);
@@ -46,19 +48,20 @@ namespace ESP32 {
 
     /**
      * Check if WiFi is connected
-     * @return true if connected, false otherwise
+     * @param onConnected Action if connected
+     * @param onDisconnected Action if disconnected
      */
-    //% block="檢查 WiFi 是否已連接?"
-    export function checkWiFi(): boolean {
+    //% block="檢查 WiFi 是否已連接，若連接則執行 %onConnected，若未連接則執行 %onDisconnected"
+    export function checkWiFiAndAct(onConnected: () => void, onDisconnected: () => void): void {
         serial.writeString("AT+CWJAP?\r\n");
         basic.pause(1000);
         let response = serial.readString();
         if (response.includes("+CWJAP:")) {
             wifiConnected = true;
-            return true;
+            onConnected();
         } else {
             wifiConnected = false;
-            return false;
+            onDisconnected();
         }
     }
 
