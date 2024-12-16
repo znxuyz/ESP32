@@ -1,13 +1,16 @@
 {
-    "name": "ESP32 V2.0",
-    "version": "1.0.0",
-    "description": "Control ESP32 WiFi functionalities such as connecting to WiFi, sending HTTP requests, and checking connection status.",
-    "dependencies": {},
-    "files": [
-        "main.ts",
-        "README.md"
-    ],
-    "supportedTargets": [
-        "microbit"
-    ]
+  "name": "ESP32WiFi 2.1",
+  "version": "0.0.1",
+  "description": "ESP32 WiFi 功能擴充，用於連接 Google Sheets 和 MIT App",
+  "license": "MIT",
+  "dependencies": {
+    "core": "*"
+  },
+  "files": [
+    "main.ts",
+    "shims.d.ts"
+  ],
+  "supportedTargets": [
+    "microbit"
+  ]
 }
