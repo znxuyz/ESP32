@@ -10,10 +10,19 @@ namespace ESP32 {
      */
     //% block="初始化 ESP32，波特率 %baudrate"
     export function initializeESP32(baudrate: number = 115200): void {
-        serial.redirect(SerialPin.P0, SerialPin.P1, BaudRate.BaudRate115200);
+        serial.redirect(SerialPin.P0, SerialPin.P1, baudrate);
         serial.setRxBufferSize(128);
         basic.pause(100);
         serial.writeString("AT\r\n");
+    }
+
+    /**
+     * ESP32 startup routine
+     */
+    //% block="啟動 ESP32 模組"
+    export function startupESP32(): void {
+        serial.writeString("AT+RST\r\n");
+        basic.pause(2000);
     }
 
     /**
@@ -39,9 +48,18 @@ namespace ESP32 {
      * Check if WiFi is connected
      * @return true if connected, false otherwise
      */
-    //% block="檢查 WiFi 是否已連接"
+    //% block="檢查 WiFi 是否已連接?"
     export function checkWiFi(): boolean {
-        return wifiConnected;
+        serial.writeString("AT+CWJAP?\r\n");
+        basic.pause(1000);
+        let response = serial.readString();
+        if (response.includes("+CWJAP:")) {
+            wifiConnected = true;
+            return true;
+        } else {
+            wifiConnected = false;
+            return false;
+        }
     }
 
     /**
