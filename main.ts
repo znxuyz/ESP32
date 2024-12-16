@@ -70,14 +70,28 @@ namespace ESP32 {
     }
 
     /**
-     * Transmit data from micro:bit sensors to a server
+     * Transmit data from micro:bit sensors to a server (MIT App Inventor compatible)
      * @param url The server URL
      * @param sensorData The data to send (e.g., sensor readings)
      */
-    //% block="傳輸數據到伺服器 %url，數據 %sensorData"
-    export function transmitSensorData(url: string, sensorData: string): void {
-        let data = "sensorData=" + sensorData;
+    //% block="發送數據到 MIT Inventor 網址 %url，數據 %sensorData"
+    export function sendDataToMIT(url: string, sensorData: string): void {
+        let data = "value=" + sensorData;
         serial.writeString("AT+HTTPCLIENT=2,1,\"" + url + "\",,,2,\"" + data + "\"\r\n");
+        basic.pause(3000);
+        let response = serial.readString();
+        serial.writeLine(response);
+    }
+
+    /**
+     * Transmit data to Google Sheets using a webhook
+     * @param webhookUrl The URL of the Google Sheets webhook
+     * @param sensorData The data to send to the Google Sheets
+     */
+    //% block="發送數據到 Google 試算表 Webhook %webhookUrl，數據 %sensorData"
+    export function sendDataToGoogleSheets(webhookUrl: string, sensorData: string): void {
+        let data = "sensorData=" + encodeURIComponent(sensorData);
+        serial.writeString("AT+HTTPCLIENT=2,1,\"" + webhookUrl + "\",,,2,\"" + data + "\"\r\n");
         basic.pause(3000);
         let response = serial.readString();
         serial.writeLine(response);
@@ -127,5 +141,34 @@ namespace ESP32 {
         basic.pause(1000);
         return serial.readString();
     }
-}
 
+    /**
+     * Restart the ESP32 module
+     */
+    //% block="重啟 ESP32 模組"
+    export function restartESP32(): void {
+        serial.writeString("AT+RST\r\n");
+        basic.pause(2000);
+    }
+
+    /**
+     * Disconnect from the current WiFi network
+     */
+    //% block="斷開 WiFi 連接"
+    export function disconnectWiFi(): void {
+        serial.writeString("AT+CWQAP\r\n");
+        basic.pause(1000);
+        wifiConnected = false;
+    }
+
+    /**
+     * Scan for available WiFi networks
+     */
+    //% block="掃描可用的 WiFi 網絡"
+    export function scanWiFiNetworks(): void {
+        serial.writeString("AT+CWLAP\r\n");
+        basic.pause(3000);
+        let response = serial.readString();
+        serial.writeLine(response);
+    }
+}
