@@ -1,7 +1,7 @@
 {
     "name": "ESP32 V1.6",
     "version": "1.0.0",
-    "description": "A MakeCode extension for ESP32 WiFi functionalities, including Google Sheets integration.",
+    "description": "Control ESP32 WiFi functionalities such as connecting to WiFi, sending HTTP requests, and checking connection status.",
     "dependencies": {},
     "files": [
         "main.ts",
