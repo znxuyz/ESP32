@@ -1,7 +1,7 @@
 {
-  "name": "ESP32WiFi V2.1",
+  "name": "ESP32WiFi",
   "version": "0.0.1",
-  "description": "ESP32 WiFi 功能擴充，用於連接 Google Sheets 和 MIT App",
+  "description": "ESP32 WiFi 功能擴充，用於 Google Sheets 和 MIT App",
   "license": "MIT",
   "dependencies": {
     "core": "*"
