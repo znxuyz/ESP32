@@ -1,5 +1,5 @@
 {
-    "name": "ESP32 V1.8",
+    "name": "ESP32 V1.9",
     "version": "1.0.0",
     "description": "Control ESP32 WiFi functionalities such as connecting to WiFi, sending HTTP requests, and checking connection status.",
     "dependencies": {},
