@@ -1,7 +1,7 @@
 {
     "name": "ESP32 WiFi Blocks",
     "version": "1.0.0",
-    "description": "A MakeCode extension for ESP32 WiFi initialization and control.",
+    "description": "A MakeCode extension for ESP32 WiFi functionalities, including Google Sheets integration.",
     "dependencies": {},
     "files": [
         "main.ts",
