@@ -1,3 +1,4 @@
+//% color=#0fbc11 icon="\uf1eb" block="ESP32WiFi"
 namespace ESP32WiFi {
     /**
      * 初始化 ESP32
