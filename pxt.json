@@ -1,5 +1,5 @@
 {
-    "name": "ESP32 WiFi Blocks",
+    "name": "ESP32 V1.4",
     "version": "1.0.0",
     "description": "A MakeCode extension for ESP32 WiFi functionalities, including Google Sheets integration.",
     "dependencies": {},
