@@ -13,24 +13,31 @@ namespace ESP32 {
     }
 
     /**
-     * 重新啟動 ESP32 模組
+     * 掃描可用的 WiFi 網絡
      */
-    //% block="重新啟動 ESP32 模組"
-    export function restartESP32(): void {
-        serial.writeString("AT+RST\r\n");
-        basic.pause(2000);
+    //% block="掃描可用的 WiFi 網絡"
+    export function scanWiFiNetworks(): void {
+        serial.writeString("AT+CWLAP\r\n");
+        basic.pause(3000);
+        let response = serial.readString();
+        basic.showString("Scan Done");
+        serial.writeLine(response);
     }
 
     /**
      * 連接到 WiFi 名稱 %ssid，密碼 %password
      */
     //% block="連接到 WiFi 名稱 %ssid，密碼 %password"
-    export function connectWiFi(ssid: string, password: string): boolean {
+    export function connectWiFi(ssid: string, password: string): void {
         serial.writeString(`AT+CWJAP="${ssid}","${password}"\r\n`);
         basic.pause(5000);
         let response = serial.readString();
         wifiConnected = response.includes("OK");
-        return wifiConnected;
+        if (wifiConnected) {
+            basic.showString("Connected");
+        } else {
+            basic.showString("Fail");
+        }
     }
 
     /**
@@ -41,112 +48,7 @@ namespace ESP32 {
         serial.writeString("AT+CWJAP?\r\n");
         basic.pause(1000);
         let response = serial.readString();
-        return response.includes("+CWJAP:");
-    }
-
-    /**
-     * 斷開 WiFi 連接
-     */
-    //% block="斷開 WiFi 連接"
-    export function disconnectWiFi(): void {
-        serial.writeString("AT+CWQAP\r\n");
-        basic.pause(1000);
-        wifiConnected = false;
-    }
-
-    /**
-     * 掃描可用的 WiFi 網絡
-     */
-    //% block="掃描可用的 WiFi 網絡"
-    export function scanWiFiNetworks(): void {
-        serial.writeString("AT+CWLAP\r\n");
-        basic.pause(3000);
-        let response = serial.readString();
-        serial.writeLine(response);
-    }
-
-    /**
-     * 獲取 ESP32 的 IP 地址
-     */
-    //% block="獲取 ESP32 的 IP 地址"
-    export function getIPAddress(): string {
-        serial.writeString("AT+CIFSR\r\n");
-        basic.pause(1000);
-        return serial.readString();
-    }
-
-    /**
-     * 發送 HTTP 請求
-     * @param method 請求方法 (GET 或 POST)
-     * @param url 網址
-     * @param data (可選) POST 數據
-     */
-    //% block="發送 HTTP %method 請求到 %url，數據 %data"
-    export function sendHttpRequest(method: "GET" | "POST", url: string, data?: string): string {
-        let command = method === "GET"
-            ? `AT+HTTPCLIENT=2,0,"${url}",,,1\r\n`
-            : `AT+HTTPCLIENT=2,1,"${url}",,,2,"${data}"\r\n`;
-
-        serial.writeString(command);
-        basic.pause(3000);
-        return serial.readString();
-    }
-
-    /**
-     * 手動編碼特殊字符 (類似 encodeURIComponent)
-     */
-    function customEncodeURIComponent(str: string): string {
-        let result = "";
-        for (let i = 0; i < str.length; i++) {
-            let char = str.charAt(i);
-            switch (char) {
-                case " ": result += "%20"; break;
-                case "!": result += "%21"; break;
-                case "\"": result += "%22"; break;
-                case "#": result += "%23"; break;
-                case "$": result += "%24"; break;
-                case "%": result += "%25"; break;
-                case "&": result += "%26"; break;
-                case "'": result += "%27"; break;
-                case "(": result += "%28"; break;
-                case ")": result += "%29"; break;
-                case "+": result += "%2B"; break;
-                case ",": result += "%2C"; break;
-                case "/": result += "%2F"; break;
-                case ":": result += "%3A"; break;
-                case ";": result += "%3B"; break;
-                case "=": result += "%3D"; break;
-                case "?": result += "%3F"; break;
-                case "@": result += "%40"; break;
-                case "[": result += "%5B"; break;
-                case "]": result += "%5D"; break;
-                default: result += char; break;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * 發送數據到指定 Webhook 網址
-     * @param webhookUrl 網址
-     * @param sensorData 數據
-     */
-    //% block="發送數據到 %webhookUrl，數據 %sensorData"
-    export function sendDataToWebhook(webhookUrl: string, sensorData: string): void {
-        let encodedData = "sensorData=" + customEncodeURIComponent(sensorData);
-        serial.writeString(`AT+HTTPCLIENT=2,1,"${webhookUrl}",,,2,"${encodedData}"\r\n`);
-        basic.pause(3000);
-        let response = serial.readString();
-        serial.writeLine(response);
-    }
-
-    /**
-     * 發送 AT 指令 %command
-     */
-    //% block="發送 AT 指令 %command"
-    export function sendATCommand(command: string): string {
-        serial.writeString(command + "\r\n");
-        basic.pause(1000);
-        return serial.readString();
+        wifiConnected = response.includes("+CWJAP:");
+        return wifiConnected;
     }
 }
