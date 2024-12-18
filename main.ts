@@ -1,57 +1,54 @@
 namespace ESP32 {
-
-    let wifiConnected = false;
-
-    /**
-     * Initialize ESP32 with baud rate %baudrate
-     */
-    //% block="Initialize ESP32 with baud rate %baudrate"
-    export function initializeESP32(baudrate: number = 115200): void {
-        serial.redirect(SerialPin.P0, SerialPin.P1, baudrate);
-        basic.pause(100);
-        serial.writeString("AT\r\n");
-    }
-
-    /**
-     * Connect to Wi-Fi SSID %ssid with password %password
-     */
-    //% block="Connect to Wi-Fi SSID %ssid with password %password"
-    //% ssid.shadow="text" password.shadow="text"
-    export function connectWiFi(ssid: string, password: string): boolean {
-        serial.writeString(`AT+CWJAP="${ssid}","${password}"\r\n`);
-        basic.pause(5000);
-        let response = serial.readString();
-        wifiConnected = response.includes("OK");
-        return wifiConnected;
-    }
-
-    /**
-     * Check if Wi-Fi is connected
-     */
-    //% block="Is Wi-Fi connected?"
-    export function isWiFiConnected(): boolean {
-        serial.writeString("AT+CWJAP?\r\n");
+    // Initialize ESP32
+    export function initESP32() {
+        serial.redirect(
+            SerialPin.P0,  // TX
+            SerialPin.P1,  // RX
+            BaudRate.BaudRate115200
+        );
         basic.pause(1000);
-        let response = serial.readString();
-        wifiConnected = response.includes("+CWJAP:");
-        return wifiConnected;
+        serial.writeLine("AT");
+        basic.pause(1000);
     }
 
-    /**
-     * Display text %message on the screen
-     */
-    //% block="Display text %message"
-    //% message.shadow="text"
-    export function displayText(message: string): void {
-        basic.showString(message);
+    // Set ESP32 pins
+    export function setPins(tx: SerialPin, rx: SerialPin, baudRate: BaudRate) {
+        serial.redirect(tx, rx, baudRate);
+        basic.pause(1000);
     }
 
-    /**
-     * Pause for %milliseconds ms
-     */
-    //% block="Pause for %milliseconds ms"
-    //% milliseconds.shadow="timePicker"
-    export function pauseMilliseconds(milliseconds: number): void {
-        basic.pause(milliseconds);
+    // Enable WiFi on ESP32
+    export function enableWiFi(ssid: string, password: string) {
+        serial.writeLine(`AT+CWJAP="${ssid}","${password}"`);
+        basic.pause(5000);
+    }
+
+    // Verify WiFi connection
+    export function isWiFiConnected(): boolean {
+        serial.writeLine("AT+CWJAP?");
+        basic.pause(2000);
+        const response = serial.readString();
+        return response.includes("OK");
+    }
+
+    // Send data to Google Sheets
+    export function sendToGoogleSheets(url: string, field: string, value: string) {
+        const fullUrl = `${url}?${field}=${value}`;
+        serial.writeLine(`AT+HTTPCLIENT=3,1,"${fullUrl}","",0,0`);
+        basic.pause(2000);
+    }
+
+    // Send data to a webpage
+    export function sendToWebpage(url: string, data: string) {
+        const fullUrl = `${url}?data=${data}`;
+        serial.writeLine(`AT+HTTPCLIENT=3,1,"${fullUrl}","",0,0`);
+        basic.pause(2000);
+    }
+
+    // Send data to MIT App Inventor
+    export function sendToApp(url: string, data: string) {
+        const fullUrl = `${url}?data=${data}`;
+        serial.writeLine(`AT+HTTPCLIENT=3,1,"${fullUrl}","",0,0`);
+        basic.pause(2000);
     }
 }
