@@ -45,63 +45,6 @@ namespace ESP32 {
     }
 
     /**
-     * 手動編碼特殊字符 (類似 encodeURIComponent)
-     */
-    function customEncodeURIComponent(str: string): string {
-        return str.replace(/ /g, '%20')
-                  .replace(/!/g, '%21')
-                  .replace(/"/g, '%22')
-                  .replace(/#/g, '%23')
-                  .replace(/\$/g, '%24')
-                  .replace(/%/g, '%25')
-                  .replace(/&/g, '%26')
-                  .replace(/'/g, '%27')
-                  .replace(/\(/g, '%28')
-                  .replace(/\)/g, '%29')
-                  .replace(/\+/g, '%2B')
-                  .replace(/,/g, '%2C')
-                  .replace(/\//g, '%2F')
-                  .replace(/:/g, '%3A')
-                  .replace(/;/g, '%3B')
-                  .replace(/=/g, '%3D')
-                  .replace(/\?/g, '%3F')
-                  .replace(/@/g, '%40')
-                  .replace(/\[/g, '%5B')
-                  .replace(/]/g, '%5D');
-    }
-
-    /**
-     * 發送數據到指定 Webhook 網址
-     * @param webhookUrl 網址
-     * @param sensorData 數據
-     */
-    //% block="發送數據到 %webhookUrl，數據 %sensorData"
-    export function sendDataToWebhook(webhookUrl: string, sensorData: string): void {
-        let encodedData = "sensorData=" + customEncodeURIComponent(sensorData);
-        serial.writeString(`AT+HTTPCLIENT=2,1,"${webhookUrl}",,,2,"${encodedData}"\r\n`);
-        basic.pause(3000);
-        let response = serial.readString();
-        serial.writeLine(response);
-    }
-
-    /**
-     * 發送 HTTP 請求
-     * @param method 請求方法 (GET 或 POST)
-     * @param url 網址
-     * @param data (可選) POST 數據
-     */
-    //% block="發送 HTTP %method 請求到 %url，數據 %data"
-    export function sendHttpRequest(method: "GET" | "POST", url: string, data?: string): string {
-        let command = method === "GET"
-            ? `AT+HTTPCLIENT=2,0,"${url}",,,1\r\n`
-            : `AT+HTTPCLIENT=2,1,"${url}",,,2,"${data}"\r\n`;
-
-        serial.writeString(command);
-        basic.pause(3000);
-        return serial.readString();
-    }
-
-    /**
      * 斷開 WiFi 連接
      */
     //% block="斷開 WiFi 連接"
@@ -130,6 +73,71 @@ namespace ESP32 {
         serial.writeString("AT+CIFSR\r\n");
         basic.pause(1000);
         return serial.readString();
+    }
+
+    /**
+     * 發送 HTTP 請求
+     * @param method 請求方法 (GET 或 POST)
+     * @param url 網址
+     * @param data (可選) POST 數據
+     */
+    //% block="發送 HTTP %method 請求到 %url，數據 %data"
+    export function sendHttpRequest(method: "GET" | "POST", url: string, data?: string): string {
+        let command = method === "GET"
+            ? `AT+HTTPCLIENT=2,0,"${url}",,,1\r\n`
+            : `AT+HTTPCLIENT=2,1,"${url}",,,2,"${data}"\r\n`;
+
+        serial.writeString(command);
+        basic.pause(3000);
+        return serial.readString();
+    }
+
+    /**
+     * 手動編碼特殊字符 (類似 encodeURIComponent)
+     */
+    function customEncodeURIComponent(str: string): string {
+        let result = "";
+        for (let i = 0; i < str.length; i++) {
+            let char = str.charAt(i);
+            switch (char) {
+                case " ": result += "%20"; break;
+                case "!": result += "%21"; break;
+                case "\"": result += "%22"; break;
+                case "#": result += "%23"; break;
+                case "$": result += "%24"; break;
+                case "%": result += "%25"; break;
+                case "&": result += "%26"; break;
+                case "'": result += "%27"; break;
+                case "(": result += "%28"; break;
+                case ")": result += "%29"; break;
+                case "+": result += "%2B"; break;
+                case ",": result += "%2C"; break;
+                case "/": result += "%2F"; break;
+                case ":": result += "%3A"; break;
+                case ";": result += "%3B"; break;
+                case "=": result += "%3D"; break;
+                case "?": result += "%3F"; break;
+                case "@": result += "%40"; break;
+                case "[": result += "%5B"; break;
+                case "]": result += "%5D"; break;
+                default: result += char; break;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 發送數據到指定 Webhook 網址
+     * @param webhookUrl 網址
+     * @param sensorData 數據
+     */
+    //% block="發送數據到 %webhookUrl，數據 %sensorData"
+    export function sendDataToWebhook(webhookUrl: string, sensorData: string): void {
+        let encodedData = "sensorData=" + customEncodeURIComponent(sensorData);
+        serial.writeString(`AT+HTTPCLIENT=2,1,"${webhookUrl}",,,2,"${encodedData}"\r\n`);
+        basic.pause(3000);
+        let response = serial.readString();
+        serial.writeLine(response);
     }
 
     /**
