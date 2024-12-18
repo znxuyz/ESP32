@@ -16,6 +16,7 @@ namespace ESP32 {
      * Connect to Wi-Fi SSID %ssid with password %password
      */
     //% block="Connect to Wi-Fi SSID %ssid with password %password"
+    //% ssid.shadow="text" password.shadow="text"
     export function connectWiFi(ssid: string, password: string): boolean {
         serial.writeString(`AT+CWJAP="${ssid}","${password}"\r\n`);
         basic.pause(5000);
@@ -37,53 +38,20 @@ namespace ESP32 {
     }
 
     /**
-     * Scan available Wi-Fi networks
+     * Display text %message on the screen
      */
-    //% block="Scan available Wi-Fi networks"
-    export function scanWiFiNetworks(): void {
-        serial.writeString("AT+CWLAP\r\n");
-        basic.pause(3000);
-        let response = serial.readString();
-        serial.writeLine(response);
+    //% block="Display text %message"
+    //% message.shadow="text"
+    export function displayText(message: string): void {
+        basic.showString(message);
     }
 
     /**
-     * Get ESP32 IP address
+     * Pause for %milliseconds ms
      */
-    //% block="Get ESP32 IP address"
-    export function getIPAddress(): string {
-        serial.writeString("AT+CIFSR\r\n");
-        basic.pause(1000);
-        return serial.readString();
-    }
-
-    /**
-     * Disconnect Wi-Fi
-     */
-    //% block="Disconnect Wi-Fi"
-    export function disconnectWiFi(): void {
-        serial.writeString("AT+CWQAP\r\n");
-        basic.pause(1000);
-        wifiConnected = false;
-    }
-
-    /**
-     * Send HTTP GET request to URL %url
-     */
-    //% block="Send HTTP GET to URL %url"
-    export function sendHttpGet(url: string): string {
-        serial.writeString(`AT+HTTPCLIENT=2,0,"${url}",,,1\r\n`);
-        basic.pause(3000);
-        return serial.readString();
-    }
-
-    /**
-     * Send HTTP POST request to URL %url with data %data
-     */
-    //% block="Send HTTP POST to URL %url with data %data"
-    export function sendHttpPost(url: string, data: string): string {
-        serial.writeString(`AT+HTTPCLIENT=2,1,"${url}",,,2,"${data}"\r\n`);
-        basic.pause(3000);
-        return serial.readString();
+    //% block="Pause for %milliseconds ms"
+    //% milliseconds.shadow="timePicker"
+    export function pauseMilliseconds(milliseconds: number): void {
+        basic.pause(milliseconds);
     }
 }
