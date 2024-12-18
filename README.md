@@ -1,24 +1,14 @@
-# ESP32WiFi 擴充積木
+# ESP32 Extension for MakeCode
 
-此擴充模組提供以下功能：
-- 初始化 ESP32
-- 連接 WiFi
-- 傳送資料到 Google Sheets
-- 傳送資料到 MIT App
-- 啟動 Web 伺服器
+This MakeCode extension allows the micro:bit to communicate with an ESP32 module to:
+- Initialize the ESP32
+- Set ESP32 pins
+- Enable and connect to WiFi
+- Verify WiFi connection
+- Send data to Google Sheets
+- Send data to a webpage
+- Send data to an MIT App Inventor app
 
-## 使用方法
-
-1. 將 ESP32 與 micro:bit 使用 EZ Kit+ 連接。
-2. 在 MakeCode 中新增此擴充模組。
-3. 使用積木控制 ESP32，實現功能。
-
-## 範例程式
-### 連接 WiFi 並傳送資料
-```blocks
-ESP32WiFi.init()
-ESP32WiFi.connectWiFi("你的WiFi名稱", "你的WiFi密碼")
-if (ESP32WiFi.checkWiFi()) {
-    ESP32WiFi.sendToGoogleSheets("25.5")
-    ESP32WiFi.sendToMITApp("25.5")
-}
+## Features
+- Simple commands for ESP32 initialization and communication
+- Compatibility with Google Forms and HTTP requests
